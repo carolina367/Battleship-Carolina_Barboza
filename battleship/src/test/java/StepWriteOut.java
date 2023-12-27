@@ -1,3 +1,4 @@
+import com.model.Game;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -6,21 +7,29 @@ import io.cucumber.java.Before;
 import static org.junit.Assert.*;
 
 public class StepWriteOut {
+    private Game game;
 
     // Game Mode Selection Steps
     @Given("the game is at the start screen")
     public void the_game_is_at_the_start_screen() {
-        // Placeholder implementation
+        game = new Game();
+        assertFalse(game.isGameStarted());
     }
 
-    @When("the player chooses to start a {string} game")
+    @When("the player chooses to start a {string} game") // Multiplayer
     public void the_player_chooses_to_start_a_game(String gameMode) {
-        // Placeholder implementation
+        game.startGame(gameMode);
+    }
+
+    @When("the player chooses to start an {string} game") // AI
+    public void thePlayerChoosesToStartAnGame(String gameMode) {
+        game.startGame(gameMode);
     }
 
     @Then("a new {string} game should start")
     public void a_new_game_should_start(String gameMode) {
-        // Placeholder implementation
+        assertTrue(game.isGameStarted());
+        assertEquals(gameMode, game.getGameMode());
     }
 
     // Random Ship Placement Steps
@@ -134,9 +143,5 @@ public class StepWriteOut {
     @Then("the board should remain hidden from the opponent")
     public void the_board_should_remain_hidden_from_the_opponent() {
         // Placeholder implementation
-    }
-
-    @When("the player chooses to start an {string} game")
-    public void thePlayerChoosesToStartAnGame(String arg0) {
     }
 }
