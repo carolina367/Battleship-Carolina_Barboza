@@ -1,19 +1,23 @@
 package com.model;
 
 public class Game {
-    private String gameMode;
+    public enum GameMode {
+        SINGLE_PLAYER, MULTIPLAYER
+    }
+
+    private GameMode gameMode;
     private boolean isGameStarted;
 
     public Game() {
         this.isGameStarted = false;
     }
 
-    public void startGame(String gameMode) {
-        this.gameMode = gameMode;
+    public void startGame(GameMode mode) {
+        this.gameMode = mode;
         this.isGameStarted = true;
     }
 
-    public String getGameMode() {
+    public GameMode getGameMode() {
         return gameMode;
     }
 

@@ -1,62 +1,72 @@
 import com.model.Game;
-import io.cucumber.java.Scenario;
+import com.model.Board;
+import com.model.Game.GameMode;
+import com.model.Ship;
+import com.model.Tile;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.java.Before;
+import io.cucumber.java.en.Then;
+
 import static org.junit.Assert.*;
 
 public class StepWriteOut {
-    private Game game;
 
-    // Game Mode Selection Steps
+    private Game game;
+    private Board board;
+
     @Given("the game is at the start screen")
     public void the_game_is_at_the_start_screen() {
         game = new Game();
+        //board = new Board();
         assertFalse(game.isGameStarted());
     }
 
-    @When("the player chooses to start a {string} game") // Multiplayer
+    @When("the player chooses to start a {string} game")
     public void the_player_chooses_to_start_a_game(String gameMode) {
-        game.startGame(gameMode);
-    }
-
-    @When("the player chooses to start an {string} game") // AI
-    public void thePlayerChoosesToStartAnGame(String gameMode) {
-        game.startGame(gameMode);
+        if ("single player".equalsIgnoreCase(gameMode)) {
+            game.startGame(GameMode.SINGLE_PLAYER);
+        } else if ("multiplayer".equalsIgnoreCase(gameMode)) {
+            game.startGame(GameMode.MULTIPLAYER);
+        }
     }
 
     @Then("a new {string} game should start")
     public void a_new_game_should_start(String gameMode) {
         assertTrue(game.isGameStarted());
-        assertEquals(gameMode, game.getGameMode());
+        GameMode expectedMode = "single player".equalsIgnoreCase(gameMode) ? GameMode.SINGLE_PLAYER : GameMode.MULTIPLAYER;
+        assertEquals(expectedMode, game.getGameMode());
     }
 
-    // Random Ship Placement Steps
     @Given("the player is on the ship placement screen")
     public void the_player_is_on_the_ship_placement_screen() {
-        // Placeholder implementation
+        board = new Board(); // Assuming Board is reset for new game
+        assertFalse(board.areAllShipsPlaced());
     }
 
     @When("the player chooses to randomly place ships")
     public void the_player_chooses_to_randomly_place_ships() {
-        // Placeholder implementation
+        board.placeAllShipsRandomly();
     }
 
     @Then("the ships should be randomly placed on the board")
     public void the_ships_should_be_randomly_placed_on_the_board() {
-        // Placeholder implementation
+        assertTrue(board.areAllShipsPlaced());
     }
 
     // Manual Ship Placement Steps
-    @When("the player chooses to place a ship at coordinates {string} vertically")
-    public void the_player_chooses_to_place_a_ship_at_coordinates_vertically(String coordinates) {
-        // Placeholder implementation
+    @When("the player chooses to place a ship at coordinates {int} and {int} vertically")
+    public void the_player_chooses_to_place_a_ship_at_coordinates_vertically(int row, int col) {
+        // Assuming the ship to be placed is a DESTROYER
+        boolean isPlaced = board.placeShipManually(Ship.ShipType.DESTROYER, row, col, false);
+        assertTrue(isPlaced); // Ensure the ship is placed successfully
     }
 
-    @Then("the ship should be placed at {string} vertically on the board")
-    public void the_ship_should_be_placed_at_vertically_on_the_board(String coordinates) {
-        // Placeholder implementation
+    @Then("the ship should be placed at {int} and {int} vertically on the board")
+    public void the_ship_should_be_placed_at_vertically_on_the_board(int row, int col) {
+        Tile tile = board.getGrid()[row][col];
+        assertTrue(tile.isOccupied());
+        assertNotNull(tile.getShip());
+        assertEquals(Ship.ShipType.DESTROYER, tile.getShip().getType());
     }
 
     // Bombing Input Steps
