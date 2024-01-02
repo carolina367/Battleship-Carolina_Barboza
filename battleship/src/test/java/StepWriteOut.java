@@ -14,6 +14,7 @@ public class StepWriteOut {
     private Game game;
     private Board board;
 
+    // Starting a Game
     @Given("the game is at the start screen")
     public void the_game_is_at_the_start_screen() {
         game = new Game();
@@ -21,6 +22,7 @@ public class StepWriteOut {
         assertFalse(game.isGameStarted());
     }
 
+    // Selecting Mode
     @When("the player chooses to start a {string} game")
     public void the_player_chooses_to_start_a_game(String gameMode) {
         if ("single player".equalsIgnoreCase(gameMode)) {
@@ -37,9 +39,10 @@ public class StepWriteOut {
         assertEquals(expectedMode, game.getGameMode());
     }
 
+    // Automatic Ship Placement Steps
     @Given("the player is on the ship placement screen")
     public void the_player_is_on_the_ship_placement_screen() {
-        board = new Board(); // Assuming Board is reset for new game
+        board = new Board();
         assertFalse(board.areAllShipsPlaced());
     }
 
@@ -58,7 +61,7 @@ public class StepWriteOut {
     public void the_player_chooses_to_place_a_ship_at_coordinates_vertically(int row, int col) {
         // Assuming the ship to be placed is a DESTROYER
         boolean isPlaced = board.placeShipManually(Ship.ShipType.DESTROYER, row, col, false);
-        assertTrue(isPlaced); // Ensure the ship is placed successfully
+        assertTrue(isPlaced);
     }
 
     @Then("the ship should be placed at {int} and {int} vertically on the board")

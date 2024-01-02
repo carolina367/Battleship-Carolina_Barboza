@@ -3,6 +3,7 @@ package com.main;
 import com.model.Game;
 import com.model.Board;
 import com.model.BoardViewType;
+import com.model.Board.BombingResult;
 import java.util.Scanner;
 
 public class Main {
@@ -53,6 +54,47 @@ public class Main {
         // Display the enemy's view
         System.out.println("Enemy's View:");
         board.displayBoard(BoardViewType.ENEMY_VIEW);
+
+        // Bombing phase
+        System.out.println("Bombing phase begins. Enter coordinates to bomb (format: row column), or 'exit' to stop:");
+        while (true) {
+            System.out.print("Enter coordinates: ");
+            String input = scanner.next();
+
+            if (input.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            int row = Integer.parseInt(input);
+            int column = scanner.nextInt();
+
+            // Validate before bombing
+            if (!board.isBombingValid(row, column)) {
+                continue; // Skip this iteration and prompt for new input
+            }
+
+            BombingResult result = board.bombAt(row, column);
+            if (result.isHit()) {
+                System.out.println("Hit at " + row + ", " + column);
+                if (result.getSunkShip() != null) {
+                    System.out.println("You've sunk a " + result.getSunkShip());
+                }
+            } else {
+                System.out.println("Miss at " + row + ", " + column);
+            }
+
+            // Display the updated board
+            System.out.println("Player's View:");
+            board.displayBoard(BoardViewType.PLAYER_VIEW);
+
+            System.out.println("Enemy's View:");
+            board.displayBoard(BoardViewType.ENEMY_VIEW);
+
+            if (board.areAllShipsSunk()) {
+                System.out.println("All enemy ships have been sunk! You win!");
+                break; // Break out of the game loop
+            }
+        }
 
         scanner.close();
     }

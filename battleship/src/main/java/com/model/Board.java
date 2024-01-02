@@ -26,6 +26,60 @@ public class Board {
         }
     }
 
+    public static class BombingResult {
+        private boolean hit;
+        private Ship.ShipType sunkShip;
+
+        public BombingResult(boolean hit, Ship.ShipType sunkShip) {
+            this.hit = hit;
+            this.sunkShip = sunkShip;
+        }
+
+        public boolean isHit() {
+            return hit;
+        }
+
+        public Ship.ShipType getSunkShip() {
+            return sunkShip;
+        }
+    }
+
+    public boolean isBombingValid(int x, int y) {
+        if (x < 0 || x >= size || y < 0 || y >= size) {
+            System.out.println("Coordinates out of bounds. Try again.");
+            return false;
+        }
+
+        Tile tile = grid[x][y];
+        if (tile.isHit() || tile.isMissedBomb()) {
+            System.out.println("Tile already bombed. Try again.");
+            return false;
+        }
+
+        return true;
+    }
+
+    public BombingResult bombAt(int x, int y) {
+        if (x < 0 || x >= size || y < 0 || y >= size) {
+            return new BombingResult(false, null); // Invalid coordinates
+        }
+
+        Tile tile = grid[x][y];
+        if (tile.isHit() || tile.isMissedBomb()) {
+            return new BombingResult(false, null); // Tile already bombed
+        }
+
+        if (tile.isOccupied()) {
+            tile.hit(); // Mark the tile as hit
+            if (tile.getShip().isSunk()) {
+                return new BombingResult(true, tile.getShip().getType()); // Return hit and sunk ship type
+            }
+            return new BombingResult(true, null); // Return hit but no sunk ship
+        } else {
+            tile.markAsMissedBomb(); // Mark the tile as a missed bomb
+            return new BombingResult(false, null); // Return miss
+        }
+    }
 
     private boolean isPlacementValid(int length, int startX, int startY, boolean horizontal) {
         if (horizontal) {
@@ -62,11 +116,10 @@ public class Board {
             return false;
         }
 
-        // Place the ship on the board
         for (int i = 0; i < length; i++) {
             int x = horizontal ? startX : startX + i;
             int y = horizontal ? startY + i : startY;
-            grid[x][y].setShip(newShip);  // Set the ship in the Tile
+            grid[x][y].setShip(newShip);
         }
 
         ships.add(newShip);
@@ -119,11 +172,11 @@ public class Board {
         for (Ship.ShipType type : shipsToPlace) {
             boolean placed = false;
             while (!placed) {
-                displayBoard(BoardViewType.PLAYER_VIEW);  // Display player's view of the board
+                displayBoard(BoardViewType.PLAYER_VIEW);
                 System.out.println("Placing " + type);
-                System.out.println("Enter starting X coordinate (0-9):");
+                System.out.println("Enter starting X coordinate (0-9) [row]:");
                 int startX = scanner.nextInt();
-                System.out.println("Enter starting Y coordinate (0-9):");
+                System.out.println("Enter starting Y coordinate (0-9) [column]:");
                 int startY = scanner.nextInt();
                 System.out.println("Horizontal placement? (true/false):");
                 boolean horizontal = scanner.nextBoolean();
@@ -145,38 +198,53 @@ public class Board {
     }
 
     public void displayBoard(BoardViewType viewType) {
-        // Print column labels
-        System.out.print("  ");
+        // Print column labels with extra spacing
+        System.out.print("   "); // Three spaces before starting column labels
         for (int j = 0; j < grid[0].length; j++) {
-            System.out.print(j + " ");
+            System.out.print(j + " "); // One space after each column label
         }
         System.out.println();
 
         // Print row labels and board state
         for (int i = 0; i < grid.length; i++) {
-            System.out.print(i + " "); // Row label
+            System.out.print(i + " "); // Row label (assumes single digit, add space for alignment)
             for (int j = 0; j < grid[i].length; j++) {
                 Tile tile = grid[i][j];
+                char symbol = '.'; // Default symbol for water
                 if (viewType == BoardViewType.PLAYER_VIEW) {
                     // Player's view logic
                     if (tile.isOccupied() && !tile.isHit()) {
-                        System.out.print(getSymbolForShip(tile.getShip())); // Show all player's ships
+                        symbol = getSymbolForShip(tile.getShip());
                     } else if (tile.isHit() && tile.isOccupied()) {
-                        System.out.print('X'); // Hit ship
-                    } else {
-                        System.out.print(tile.isMissedBomb() ? 'O' : '.'); // Missed bomb or water
+                        symbol = 'X';
+                    } else if (tile.isMissedBomb()) {
+                        symbol = 'O';
                     }
                 } else {
                     // Enemy's view logic
                     if (tile.isHit() && tile.isOccupied()) {
-                        System.out.print('X'); // Hit ship
-                    } else {
-                        System.out.print(tile.isMissedBomb() || tile.isHit() ? 'O' : '.'); // Missed bomb, hit, or water
+                        if (tile.getShip().isSunk()) {
+                            symbol = getSymbolForShip(tile.getShip());
+                        } else {
+                            symbol = 'X';
+                        }
+                    } else if (tile.isMissedBomb() || tile.isHit()) {
+                        symbol = 'O';
                     }
                 }
+                System.out.print(symbol + " "); // Print each symbol with a space after it
             }
             System.out.println();
         }
+    }
+
+    public boolean areAllShipsSunk() {
+        for (Ship ship : ships) {
+            if (!ship.isSunk()) {
+                return false; // If any ship is not sunk, return false
+            }
+        }
+        return true; // All ships are sunk
     }
 
     private char getSymbolForShip(Ship ship) {
