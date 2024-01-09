@@ -64,8 +64,3 @@ public class Ship {
         return hitCount;
     }
 }
-
-//        - 1xcarrier -  5 holes
-//        - 1xbattleship - 4 holes
-//        - 2xcruisers - 3 holes
-//        - 1xdestroyer - 2 holes

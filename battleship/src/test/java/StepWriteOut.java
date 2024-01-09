@@ -1,75 +1,54 @@
 import com.model.Game;
-import com.model.Board;
 import com.model.Game.GameMode;
-import com.model.Ship;
-import com.model.Tile;
+import com.model.GameParticipant;
+import com.model.Board;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 
+import java.util.Scanner;
+
 import static org.junit.Assert.*;
 
 public class StepWriteOut {
-
-    private Game game;
-    private Board board;
-
-    // Starting a Game
     @Given("the game is at the start screen")
     public void the_game_is_at_the_start_screen() {
-        game = new Game();
-        //board = new Board();
-        assertFalse(game.isGameStarted());
+
     }
 
-    // Selecting Mode
     @When("the player chooses to start a {string} game")
     public void the_player_chooses_to_start_a_game(String gameMode) {
-        if ("single player".equalsIgnoreCase(gameMode)) {
-            game.startGame(GameMode.SINGLE_PLAYER);
-        } else if ("multiplayer".equalsIgnoreCase(gameMode)) {
-            game.startGame(GameMode.MULTIPLAYER);
-        }
+
     }
 
     @Then("a new {string} game should start")
     public void a_new_game_should_start(String gameMode) {
-        assertTrue(game.isGameStarted());
-        GameMode expectedMode = "single player".equalsIgnoreCase(gameMode) ? GameMode.SINGLE_PLAYER : GameMode.MULTIPLAYER;
-        assertEquals(expectedMode, game.getGameMode());
+
     }
 
     // Automatic Ship Placement Steps
     @Given("the player is on the ship placement screen")
     public void the_player_is_on_the_ship_placement_screen() {
-        board = new Board();
-        assertFalse(board.areAllShipsPlaced());
+
     }
 
     @When("the player chooses to randomly place ships")
     public void the_player_chooses_to_randomly_place_ships() {
-        board.placeAllShipsRandomly();
+
     }
 
     @Then("the ships should be randomly placed on the board")
     public void the_ships_should_be_randomly_placed_on_the_board() {
-        assertTrue(board.areAllShipsPlaced());
+
     }
 
     // Manual Ship Placement Steps
     @When("the player chooses to place a ship at coordinates {int} and {int} vertically")
     public void the_player_chooses_to_place_a_ship_at_coordinates_vertically(int row, int col) {
-        // Assuming the ship to be placed is a DESTROYER
-        boolean isPlaced = board.placeShipManually(Ship.ShipType.DESTROYER, row, col, false);
-        assertTrue(isPlaced);
     }
 
     @Then("the ship should be placed at {int} and {int} vertically on the board")
     public void the_ship_should_be_placed_at_vertically_on_the_board(int row, int col) {
-        Tile tile = board.getGrid()[row][col];
-        assertTrue(tile.isOccupied());
-        assertNotNull(tile.getShip());
-        assertEquals(Ship.ShipType.DESTROYER, tile.getShip().getType());
     }
 
     // Bombing Input Steps

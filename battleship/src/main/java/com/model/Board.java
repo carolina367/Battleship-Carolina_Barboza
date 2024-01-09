@@ -9,18 +9,22 @@ import java.util.Scanner;
 
 public class Board {
     private Tile[][] grid;
-    private final int size = 10; // 10x10 board
+    private static final int SIZE = 10; // 10x10 board
     private List<Ship> ships;
 
+    public static int getSize() {
+        return SIZE;
+    }
+    
     public Board() {
-        grid = new Tile[size][size];
+        grid = new Tile[SIZE][SIZE];
         ships = new ArrayList<>();
         initializeGrid();
     }
 
     private void initializeGrid() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
                 grid[i][j] = new Tile();
             }
         }
@@ -45,7 +49,7 @@ public class Board {
     }
 
     public boolean isBombingValid(int x, int y) {
-        if (x < 0 || x >= size || y < 0 || y >= size) {
+        if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) {
             System.out.println("Coordinates out of bounds. Try again.");
             return false;
         }
@@ -60,7 +64,7 @@ public class Board {
     }
 
     public BombingResult bombAt(int x, int y) {
-        if (x < 0 || x >= size || y < 0 || y >= size) {
+        if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) {
             return new BombingResult(false, null); // Invalid coordinates
         }
 
@@ -83,9 +87,9 @@ public class Board {
 
     private boolean isPlacementValid(int length, int startX, int startY, boolean horizontal) {
         if (horizontal) {
-            if (startY + length > size) return false;
+            if (startY + length > SIZE) return false;
         } else {
-            if (startX + length > size) return false;
+            if (startX + length > SIZE) return false;
         }
 
         for (int i = 0; i < length; i++) {
@@ -99,7 +103,7 @@ public class Board {
                 for (int dy = -1; dy <= 1; dy++) {
                     int adjX = x + dx;
                     int adjY = y + dy;
-                    if (adjX >= 0 && adjX < size && adjY >= 0 && adjY < size && grid[adjX][adjY].isOccupied()) {
+                    if (adjX >= 0 && adjX < SIZE && adjY >= 0 && adjY < SIZE && grid[adjX][adjY].isOccupied()) {
                         return false;
                     }
                 }
@@ -153,8 +157,8 @@ public class Board {
         Random rand = new Random();
         boolean placed = false;
         while (!placed) {
-            int x = rand.nextInt(size);
-            int y = rand.nextInt(size);
+            int x = rand.nextInt(SIZE);
+            int y = rand.nextInt(SIZE);
             boolean horizontal = rand.nextBoolean();
             placed = placeShip(type, x, y, horizontal);
         }
