@@ -1,11 +1,14 @@
 Feature: Game Mode Selection
+  As a player
+  I want to choose a new game against AI or local multiplayer
+  So I can play my preferred way
 
-  Scenario: Choosing a new game mode
-    Given the game is at the start screen
-    When the player chooses to start a "multiplayer" game
-    Then a new "multiplayer" game should start
+  Scenario: Choosing single-player mode
+    Given the game is started
+    When I choose single-player mode
+    Then the game should start in single-player mode
 
-  Scenario: Choosing Single Player game mode
-    Given the game is at the start screen
-    When the player chooses to start a "single player" game
-    Then a new "single player" game should start
+  Scenario: Choosing multiplayer mode
+    Given the game is started
+    When I choose multiplayer mode
+    Then the game should start in multiplayer mode

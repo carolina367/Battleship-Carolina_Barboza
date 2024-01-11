@@ -1,7 +1,5 @@
-import com.model.Game;
+import com.model.*;
 import com.model.Game.GameMode;
-import com.model.GameParticipant;
-import com.model.Board;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
@@ -11,129 +9,188 @@ import java.util.Scanner;
 import static org.junit.Assert.*;
 
 public class StepWriteOut {
-    @Given("the game is at the start screen")
-    public void the_game_is_at_the_start_screen() {
+    private Game game;
+    private GameMode selectedMode;
+    private GameParticipant player;
+    private boolean invalidPlacementResult;
+    private boolean bombingResultValid;
+    private Board.BombingResult lastBombingResult;
 
+    private int playerShipsLeft;
+    private int opponentShipsLeft;
+
+    // Step definitions for "Game Mode Selection" feature
+    @Given("the game is started")
+    public void the_game_is_started() {
+        game = new Game();
     }
 
-    @When("the player chooses to start a {string} game")
-    public void the_player_chooses_to_start_a_game(String gameMode) {
-
+    @When("I choose single-player mode")
+    public void i_choose_single_player_mode() {
+        selectedMode = GameMode.SINGLE_PLAYER;
+        game.startGame(selectedMode);
     }
 
-    @Then("a new {string} game should start")
-    public void a_new_game_should_start(String gameMode) {
-
+    @When("I choose multiplayer mode")
+    public void i_choose_multiplayer_mode() {
+        selectedMode = GameMode.MULTIPLAYER;
+        game.startGame(selectedMode);
     }
 
-    // Automatic Ship Placement Steps
-    @Given("the player is on the ship placement screen")
-    public void the_player_is_on_the_ship_placement_screen() {
-
+    @Then("the game should start in single-player mode")
+    public void the_game_should_start_in_single_player_mode() {
+        assertEquals(GameMode.SINGLE_PLAYER, game.getGameMode());
     }
 
-    @When("the player chooses to randomly place ships")
-    public void the_player_chooses_to_randomly_place_ships() {
-
+    @Then("the game should start in multiplayer mode")
+    public void the_game_should_start_in_multiplayer_mode() {
+        assertEquals(GameMode.MULTIPLAYER, game.getGameMode());
     }
 
-    @Then("the ships should be randomly placed on the board")
-    public void the_ships_should_be_randomly_placed_on_the_board() {
-
+    // Step definitions for "Automatic Ship Placement" feature
+    @Given("a new game has started")
+    public void a_new_game_has_started() {
+        game = new Game();
+        // Initialize the game with necessary setup
     }
 
-    // Manual Ship Placement Steps
-    @When("the player chooses to place a ship at coordinates {int} and {int} vertically")
-    public void the_player_chooses_to_place_a_ship_at_coordinates_vertically(int row, int col) {
+    @Given("I am a player in the game")
+    public void i_am_a_player_in_the_game() {
+        player = new Player("Player 1");
+        // You can also mock the player if needed
     }
 
-    @Then("the ship should be placed at {int} and {int} vertically on the board")
-    public void the_ship_should_be_placed_at_vertically_on_the_board(int row, int col) {
+    @When("I choose to place my ships automatically")
+    public void i_choose_to_place_my_ships_automatically() {
+        player.placeShips(null, true); // Assuming true represents automatic placement
     }
 
-    // Bombing Input Steps
-    @Given("the player is in the bombing phase")
-    public void the_player_is_in_the_bombing_phase() {
-        // Placeholder implementation
+    @Then("my ships should be placed on the board automatically")
+    public void my_ships_should_be_placed_on_the_board_automatically() {
+        assertNotNull(player.getBoard());
+        // Additional checks can be added to verify ship placement
     }
 
-    @When("the player enters the coordinates {string} for bombing")
-    public void the_player_enters_the_coordinates_for_bombing(String coordinates) {
-        // Placeholder implementation
+    @Then("all my ships should be properly placed on the board")
+    public void all_my_ships_should_be_properly_placed_on_the_board() {
+        assertTrue(player.getBoard().areAllShipsPlaced());
+        // This assumes a method 'areAllShipsPlaced()' exists in Board class
     }
 
-    @Then("a bomb should be placed at {string}")
-    public void a_bomb_should_be_placed_at(String coordinates) {
-        // Placeholder implementation
+    // Step definitions for "Manual Ship Placement" feature
+    @When("I choose to place a ship manually at specific coordinates")
+    public void i_choose_to_place_a_ship_manually_at_specific_coordinates() {
+        // Assuming the player has a method to manually place ships
+        // This can be a mocked interaction as actual user input can't be simulated in tests
+        boolean isPlaced = player.getBoard().placeShip(Ship.ShipType.DESTROYER, 5, 5, true);
+        assertTrue(isPlaced);
     }
 
-    // Identify Bombed Ship Steps
-    @Given("a ship is fully bombed")
-    public void a_ship_is_fully_bombed() {
-        // Placeholder implementation
+    @Then("the ship should be placed at those coordinates on the board")
+    public void the_ship_should_be_placed_at_those_coordinates_on_the_board() {
+        // Verify that the ship is placed at the specified coordinates
+        Tile[][] grid = player.getBoard().getGrid();
+        assertNotNull(grid[5][5].getShip());
+        assertEquals(Ship.ShipType.DESTROYER, grid[5][5].getShip().getType());
     }
 
-    @When("the bombing phase ends")
-    public void the_bombing_phase_ends() {
-        // Placeholder implementation
+    @When("I choose an invalid location to place a ship")
+    public void i_choose_an_invalid_location_to_place_a_ship() {
+        // Attempt to place a ship at an invalid location
+        // For instance, outside the bounds of the board
+        // Store the result instead of directly asserting it
+        invalidPlacementResult = player.getBoard().placeShip(Ship.ShipType.CRUISER, 10, 10, true);
     }
 
-    @Then("the player should be notified about the type of the bombed ship")
-    public void the_player_should_be_notified_about_the_type_of_the_bombed_ship() {
-        // Placeholder implementation
+    @Then("the placement should be rejected")
+    public void the_placement_should_be_rejected() {
+        // Verify that the ship placement was rejected
+        assertFalse(invalidPlacementResult);
     }
 
-    // Track Ships Left Steps
-    @Given("the game is in progress")
-    public void the_game_is_in_progress() {
-        // Placeholder implementation
+    // Step definitions for "Bombing Input" feature
+    @Given("an enemy ship is at coordinates {int}, {int}")
+    public void an_enemy_ship_is_at_coordinates(int x, int y) {
+        // Place an enemy ship at the specified coordinates for testing
+        player.getBoard().placeShip(Ship.ShipType.DESTROYER, x, y, true);
     }
 
-    @When("the player checks the number of ships left")
-    public void the_player_checks_the_number_of_ships_left() {
-        // Placeholder implementation
+    @When("I enter the bombing coordinates {int}, {int}")
+    public void i_enter_the_bombing_coordinates(int x, int y) {
+        // Simulate bombing at the given coordinates
+        player.getBoard().bombAt(x, y);
     }
 
-    @Then("the player should see the number of ships remaining for both players")
-    public void the_player_should_see_the_number_of_ships_remaining_for_both_players() {
-        // Placeholder implementation
+    @Then("the bombing should be a hit at coordinates {int}, {int}")
+    public void the_bombing_should_be_a_hit_at_coordinates(int x, int y) {
+        // Verify that the bombing was a hit
+        Tile tile = player.getBoard().getGrid()[x][y];
+        assertTrue(tile.isHit() && tile.isOccupied());
     }
 
-    // Surrender Option Steps
-    @When("the player chooses to surrender")
-    public void the_player_chooses_to_surrender() {
-        // Placeholder implementation
+    @Then("the bombing should be a miss at coordinates {int}, {int}")
+    public void the_bombing_should_be_a_miss_at_coordinates(int x, int y) {
+        // Verify that the bombing was a miss
+        Tile tile = player.getBoard().getGrid()[x][y];
+        assertTrue(tile.isMissedBomb());
     }
 
-    @Then("the game should end and the opponent should win")
-    public void the_game_should_end_and_the_opponent_should_win() {
-        // Placeholder implementation
+    @When("I enter invalid bombing coordinates {int}, {int}")
+    public void i_enter_invalid_bombing_coordinates(int x, int y) {
+        // Simulate an attempt to bomb at invalid coordinates
+        // This step might be left empty if the validation is done in the bombAt method
+        bombingResultValid = player.getBoard().bombAt(x, y).isHit();
     }
 
-    // Previous Bomb Locations Steps
-    @Given("the player has bombed previously")
-    public void the_player_has_bombed_previously() {
-        // Placeholder implementation
+    @Then("the bombing attempt should be rejected")
+    public void the_bombing_attempt_should_be_rejected() {
+        // Verify that the bombing attempt at invalid coordinates is rejected
+        // This can be checked by validating the return value of bombAt or any error handling
+        assertFalse(bombingResultValid);
     }
 
-    @When("the player views the board")
-    public void the_player_views_the_board() {
-        // Placeholder implementation
+    @Given("an enemy ship is fully placed at coordinates {int},{int} to {int},{int}")
+    public void an_enemy_ship_is_fully_placed_at_coordinates(int startX, int startY, int endX, int endY) {
+        // Place a ship fully covering the specified coordinates
+        player.getBoard().placeShip(Ship.ShipType.CRUISER, startX, startY, startX == endX);
     }
 
-    @Then("the previous bombed locations should be visible")
-    public void the_previous_bombed_locations_should_be_visible() {
-        // Placeholder implementation
+    @Given("an enemy ship is partially placed at coordinates {int},{int} to {int},{int}")
+    public void an_enemy_ship_is_partially_placed_at_coordinates(int startX, int startY, int endX, int endY) {
+        // Place a ship partially covering the specified coordinates
+        player.getBoard().placeShip(Ship.ShipType.BATTLESHIP, startX, startY, startX == endX);
     }
 
-    // Hidden Boards Steps
-    @When("the opponent tries to view the player's board")
-    public void the_opponent_tries_to_view_the_players_board() {
-        // Placeholder implementation
+    @When("I bomb each coordinate from {int},{int} to {int},{int}")
+    public void i_bomb_each_coordinate_from_to(int startX, int startY, int endX, int endY) {
+        // Bomb each coordinate in the specified range
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                lastBombingResult = player.getBoard().bombAt(x, y);
+            }
+        }
     }
 
-    @Then("the board should remain hidden from the opponent")
-    public void the_board_should_remain_hidden_from_the_opponent() {
-        // Placeholder implementation
+    // Adjusted step definition for bombing and sinking a ship
+    @Then("I should be informed that a Cruiser has been sunk")
+    public void i_should_be_informed_that_a_cruiser_has_been_sunk() {
+        assertNotNull(lastBombingResult);
+        assertEquals(Ship.ShipType.CRUISER, lastBombingResult.getSunkShip());
     }
+
+    // New step definition for "I bomb the coordinates 4,4 and 4,5"
+    @When("I bomb the coordinates {int},{int} and {int},{int}")
+    public void i_bomb_the_coordinates_and(int x1, int y1, int x2, int y2) {
+        lastBombingResult = player.getBoard().bombAt(x1, y1);
+        lastBombingResult = player.getBoard().bombAt(x2, y2);
+    }
+
+    @Then("I should not receive a message about a sunk ship")
+    public void i_should_not_receive_a_message_about_a_sunk_ship() {
+        // Verify that the last bombing result does not indicate a ship has been sunk
+        assertNotNull(lastBombingResult);
+        assertNull(lastBombingResult.getSunkShip());
+    }
+
+
 }

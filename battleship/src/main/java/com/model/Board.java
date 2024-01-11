@@ -15,7 +15,7 @@ public class Board {
     public static int getSize() {
         return SIZE;
     }
-    
+
     public Board() {
         grid = new Tile[SIZE][SIZE];
         ships = new ArrayList<>();

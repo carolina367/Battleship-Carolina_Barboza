@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
         features = {
 //                "src/test/resources/features/GameModeSelection.feature",
 //                "src/test/resources/features/RandomShipPlacement.feature",
-//                "src/test/resources/features/ManualShipPlacement.feature",
+//                      "src/test/resources/features/ManualShipPlacement.feature",
 //                "src/test/resources/features/BombingInput.feature",
 //                "src/test/resources/features/IdentifyBombedShip.feature",
 //                "src/test/resources/features/TrackShipsLeft.feature",
